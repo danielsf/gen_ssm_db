@@ -295,10 +295,11 @@ def main(argv):
     print 'number of coefficients ', coeff
 
     # open output files
+    timing_tag = '.%s_%s' % (argv[1], argv[4])
     inputfilename = inputfilepath.split("/")
-    CoeffFile = open(inputfilename[-1] + '.coef_vartime_' + str(coeff) + '.dat', 'w')
-    ResidualSumfile = open(inputfilename[-1] + '.resid_sum_vartime_' + str(coeff) + '.dat', 'w')
-    Failedfile = open(inputfilename[-1] + '.failed_' + str(coeff) + '.dat', 'w')
+    CoeffFile = open(inputfilename[-1] + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w')
+    ResidualSumfile = open(inputfilename[-1] + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w')
+    Failedfile = open(inputfilename[-1] + timing_tag + '.failed_' + str(coeff) + '.dat', 'w')
 
     # get input
     orbit = np.loadtxt(inputfilepath, comments='!!', usecols=(2, 3, 4, 5, 6, 7, 8, 9),
