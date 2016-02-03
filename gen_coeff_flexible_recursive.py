@@ -355,7 +355,7 @@ def main(argv):
                        ResidualSumfile, Failedfile, inputfilename[-1])
             tmpStartTime += days
 
-    CompletedNotice = open(inputfilename[-1] + '.done.txt', 'w')
+    CompletedNotice = open(inputfilename[-1] + timing_tag + '.done.txt', 'w')
     print >>CompletedNotice, "Success"
 
 
