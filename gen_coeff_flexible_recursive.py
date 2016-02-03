@@ -12,6 +12,7 @@ remember to setup the library environment variables first:
 >export OORB_DATA=/share/pogo3/krughoff/shared/oorb/data/
 """
 
+import os
 import numpy as np
 import chebfit as cg
 import chebeval as ce
@@ -288,6 +289,10 @@ def main(argv):
     days = int(argv[2])
     coeff = int(argv[3])
     totaldays = int(argv[4])
+    if len(argv)>=6:
+        output_dir = argv[5]
+    else:
+        output_dir = None
 
     print 'Generating and Fitting Ephems starting:', start_time
     print 'working on file ', inputfilepath
@@ -297,9 +302,15 @@ def main(argv):
     # open output files
     timing_tag = '.%s_%s' % (argv[1], argv[4])
     inputfilename = inputfilepath.split("/")
-    CoeffFile = open(inputfilename[-1] + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w')
-    ResidualSumfile = open(inputfilename[-1] + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w')
-    Failedfile = open(inputfilename[-1] + timing_tag + '.failed_' + str(coeff) + '.dat', 'w')
+
+    if output_dir is not None:
+        outputfile_root = os.path.join(output_dir, inputfilename[-1])
+    else:
+        outputfile_root = inputfilename[-1]
+
+    CoeffFile = open(outputfile_root + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w')
+    ResidualSumfile = open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w')
+    Failedfile = open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w')
 
     # get input
     orbit = np.loadtxt(inputfilepath, comments='!!', usecols=(2, 3, 4, 5, 6, 7, 8, 9),
@@ -355,7 +366,7 @@ def main(argv):
                        ResidualSumfile, Failedfile, inputfilename[-1])
             tmpStartTime += days
 
-    CompletedNotice = open(inputfilename[-1] + timing_tag + '.done.txt', 'w')
+    CompletedNotice = open(outputfile_root + timing_tag + '.done.txt', 'w')
     print >>CompletedNotice, "Success"
 
 
