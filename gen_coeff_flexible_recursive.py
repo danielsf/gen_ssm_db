@@ -12,6 +12,7 @@ remember to setup the library environment variables first:
 >export OORB_DATA=/share/pogo3/krughoff/shared/oorb/data/
 """
 
+from __future__ import with_statement
 import os
 import numpy as np
 import chebfit as cg
@@ -300,17 +301,12 @@ def main(argv):
     print 'number of coefficients ', coeff
 
     # open output files
-    timing_tag = '.%s_%s' % (argv[1], argv[4])
     inputfilename = inputfilepath.split("/")
 
     if output_dir is not None:
         outputfile_root = os.path.join(output_dir, inputfilename[-1])
     else:
         outputfile_root = inputfilename[-1]
-
-    CoeffFile = open(outputfile_root + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w')
-    ResidualSumfile = open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w')
-    Failedfile = open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w')
 
     # get input
     orbit = np.loadtxt(inputfilepath, comments='!!', usecols=(2, 3, 4, 5, 6, 7, 8, 9),
@@ -362,12 +358,20 @@ def main(argv):
 
         tmpStartTime = start_time
         while tmpStartTime < start_time + totaldays:
-            doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
-                       ResidualSumfile, Failedfile, inputfilename[-1])
+
+            timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
+
+            with open(outputfile_root + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
+                with open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w') as ResidualSumfile:
+                    with open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w') as Failedfile:
+
+                        doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
+                                   ResidualSumfile, Failedfile, inputfilename[-1])
+
             tmpStartTime += days
 
-    CompletedNotice = open(outputfile_root + timing_tag + '.done.txt', 'w')
-    print >>CompletedNotice, "Success"
+            with open(outputfile_root + timing_tag + '.done.txt', 'w') as CompletedNotice:
+                print >>CompletedNotice, "Success"
 
 
 if __name__ == "__main__":
