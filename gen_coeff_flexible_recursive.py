@@ -361,7 +361,7 @@ def main(argv):
 
             timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
 
-            with open(outputfile_root + timing_tag + '.coef_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
+            with open(outputfile_root + timing_tag + '.coeff_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
                 with open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w') as ResidualSumfile:
                     with open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w') as Failedfile:
 
