@@ -347,23 +347,24 @@ def main(argv):
         datalen = 1
     if DEBUG:
         print 'datalen', datalen
-    for i in range(datalen):
-        if datalen == 1:
-            id = ssmid
-            mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
-        else:
-            id = ssmid[i]
-            mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
-                                   t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
 
-        tmpStartTime = start_time
-        while tmpStartTime < start_time + totaldays:
+    tmpStartTime = start_time
+    while tmpStartTime < start_time + totaldays:
 
-            timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
+        timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
 
-            with open(outputfile_root + timing_tag + '.coeff_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
-                with open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w') as ResidualSumfile:
-                    with open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w') as Failedfile:
+        with open(outputfile_root + timing_tag + '.coeff_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
+            with open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w') as ResidualSumfile:
+                with open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w') as Failedfile:
+
+                    for i in range(datalen):
+                        if datalen == 1:
+                            id = ssmid
+                            mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
+                        else:
+                            id = ssmid[i]
+                            mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
+                                                   t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
 
                         doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
                                    ResidualSumfile, Failedfile, inputfilename[-1])
