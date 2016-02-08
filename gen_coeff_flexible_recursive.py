@@ -362,13 +362,17 @@ def main(argv):
                     for i in range(datalen):
                         if datalen == 1:
                             id = ssmid
-                            mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
+                            if id not in moving_object_dict:
+                                mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
+                                moving_object_dict[id] = mymo
                         else:
                             id = ssmid[i]
-                            mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
-                                                   t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
+                            if id not in moving_object_dict:
+                                mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
+                                                       t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
+                                moving_object_dict[id] = mymo
 
-                        doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
+                        doOneMonth(id, moving_object_dict[id], tmpStartTime, days, coeff, multipliers, CoeffFile,
                                    ResidualSumfile, Failedfile, inputfilename[-1])
 
             tmpStartTime += days
