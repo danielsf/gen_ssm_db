@@ -348,8 +348,6 @@ def main(argv):
     if DEBUG:
         print 'datalen', datalen
 
-    moving_object_dict = {}
-
     tmpStartTime = start_time
     while tmpStartTime < start_time + totaldays:
 
@@ -362,17 +360,13 @@ def main(argv):
                     for i in range(datalen):
                         if datalen == 1:
                             id = ssmid
-                            if id not in moving_object_dict:
-                                mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
-                                moving_object_dict[id] = mymo
+                            mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
                         else:
                             id = ssmid[i]
-                            if id not in moving_object_dict:
-                                mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
-                                                       t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
-                                moving_object_dict[id] = mymo
+                            mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
+                                                   t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
 
-                        doOneMonth(id, moving_object_dict[id], tmpStartTime, days, coeff, multipliers, CoeffFile,
+                        doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
                                    ResidualSumfile, Failedfile, inputfilename[-1])
 
             tmpStartTime += days
