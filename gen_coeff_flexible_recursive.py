@@ -306,7 +306,7 @@ def main(argv):
     else:
         output_dir = None
 
-    print 'starting ',time.clock()
+    print 'starting ',inputfilepath,' ',time.clock()
     print 'Generating and Fitting Ephems starting:', start_time
     print 'working on file ', inputfilepath
     print 'timespan in days ', days
@@ -367,7 +367,7 @@ def main(argv):
 
     line_step = 5000
 
-    print 'running ',time.clock()
+    print 'running ',inputfilepath,' ',time.clock()
 
     tmpStartTime = start_time
     while tmpStartTime < start_time + totaldays:
