@@ -375,9 +375,13 @@ def main(argv):
 
         timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
 
-        with open(outputfile_root + timing_tag + '.coeff_vartime_' + str(coeff) + '.dat', 'w') as CoeffFile:
-            with open(outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat', 'w') as ResidualSumfile:
-                with open(outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat', 'w') as Failedfile:
+        coeff_file_name = outputfile_root + timing_tag + '.coeff_vartime_' + str(coeff) + '.dat'
+        residual_file_name = outputfile_root + timing_tag +'.resid_sum_vartime_' + str(coeff) + '.dat'
+        failed_file_name = outputfile_root + timing_tag + '.failed_' + str(coeff) + '.dat'
+
+        with open(coeff_file_name, 'w') as CoeffFile:
+            with open(residual_file_name, 'w') as ResidualSumfile:
+                with open(failed_file_name, 'w') as Failedfile:
 
                     for i in range(datalen):
                         if datalen == 1:
@@ -395,7 +399,7 @@ def main(argv):
                         or len(ResidualSumfile_list)>line_step \
                         or len(Failedfile_list)>line_step:
                             timing_0=time.clock()
-                            print 'writing ',timing_0
+                            print 'writing %s %d %e' % (coeff_file_name, len(CoeffFile_list), timing_0)
 
                             for line in CoeffFile_list:
                                 CoeffFile.write(line)
@@ -412,11 +416,11 @@ def main(argv):
                             del Failedfile_list
                             Failedfile_list = []
 
-                            print 'that took ',time.clock()-timing_0,'\n\n'
+                            print '    ',coeff_file_name,' took ',time.clock()-timing_0
 
 
                     timing_0=time.clock()
-                    print 'writing ',timing_0
+                    print 'writing %s %d %e' % (coeff_file_name, len(CoeffFile_list), timing_0)
                     for line in CoeffFile_list:
                         CoeffFile.write(line)
                     del CoeffFile_list
@@ -431,7 +435,7 @@ def main(argv):
                         Failedfile.write(line)
                     del Failedfile_list
                     Failedfile_list = []
-                    print 'that took ',time.clock()-timing_0,'\n\n'
+                    print '    writing finally ',coeff_file_name,' took ',time.clock()-timing_0
 
 
             tmpStartTime += days
