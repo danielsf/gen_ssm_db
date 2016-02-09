@@ -290,8 +290,14 @@ def main(argv):
     days = int(argv[2])
     coeff = int(argv[3])
     totaldays = int(argv[4])
+
     if len(argv)>=6:
-        output_dir = argv[5]
+        tmp_dir = argv[5]
+    else:
+        tmp_dir = None
+
+    if len(argv)>=7:
+        output_dir = argv[6]
     else:
         output_dir = None
 
@@ -303,8 +309,12 @@ def main(argv):
     # open output files
     inputfilename = inputfilepath.split("/")
 
-    if output_dir is not None:
-        outputfile_root = os.path.join(output_dir, inputfilename[-1])
+    if tmp_dir is not None:
+
+        if not os.path.exists(tmp_dir):
+            os.mkdir(tmp_dir)
+
+        outputfile_root = os.path.join(tmp_dir, inputfilename[-1])
     else:
         outputfile_root = inputfilename[-1]
 
@@ -373,6 +383,9 @@ def main(argv):
 
             with open(outputfile_root + timing_tag + '.done.txt', 'w') as CompletedNotice:
                 print >>CompletedNotice, "Success"
+
+    if tmp_dir is not None and output_dir is not None:
+        os.renames(tmp_dir, output_dir)
 
 
 if __name__ == "__main__":
