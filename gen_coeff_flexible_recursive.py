@@ -22,6 +22,7 @@ import movingObject as mo
 import math
 import pyoorb as oo
 DEBUG = False
+import time
 
 
 def sphericalDistance(origin, destination):
@@ -393,6 +394,8 @@ def main(argv):
                         if len(CoeffFile_list)>line_step \
                         or len(ResidualSumfile_list)>line_step \
                         or len(Failedfile_list)>line_step:
+                            timing_0=time.clock()
+                            print 'writing ',timing_0
 
                             for line in CoeffFile_list:
                                 CoeffFile.write(line)
@@ -409,7 +412,11 @@ def main(argv):
                             del Failedfile_list
                             Failedfile_list = []
 
+                            print 'that took ',time.clock()-timing_0,'\n\n'
 
+
+                    timing_0=time.clock()
+                    print 'writing ',timing_0
                     for line in CoeffFile_list:
                         CoeffFile.write(line)
                     del CoeffFile_list
@@ -424,6 +431,7 @@ def main(argv):
                         Failedfile.write(line)
                     del Failedfile_list
                     Failedfile_list = []
+                    print 'that took ',time.clock()-timing_0,'\n\n'
 
 
             tmpStartTime += days
