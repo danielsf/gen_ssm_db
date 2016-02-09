@@ -209,8 +209,8 @@ def getGran(ssmid, mymo, start_time, days, coeff):
     return timestep, length, ngran
 
 
-def breakItDown(ssmid, mymo, start_time, timestep,  days,  ngran,  coeff,  multiplier, CoeffFile,
-                ResidualSumfile, Failedfile,  inputfilename):
+def breakItDown(ssmid, mymo, start_time, timestep,  days,  ngran,  coeff,  multiplier, CoeffFile_list,
+                ResidualSumfile_list, Failedfile_list,  inputfilename):
     timestep = timestep/2.
     length = days/2
     halfofDaysToRun = start_time
@@ -222,13 +222,14 @@ def breakItDown(ssmid, mymo, start_time, timestep,  days,  ngran,  coeff,  multi
         print "test presid RECURSIVE is", p_resid
     timestep, length = adjustTimeLengthExtreme(p_resid, dec[0], timestep, length)
     doOneRecursiveSegment(ssmid, mymo, start_time, days, coeff, timestep, length, ngran,
-                          multiplier, CoeffFile, ResidualSumfile, Failedfile, inputfilename)
+                          multiplier, CoeffFile_list, ResidualSumfile_list, Failedfile_list, inputfilename)
 
 
 def doOneRecursiveSegment(ssmid, mymo, start_time, days, coeff, timestep, length, ngran,
-                          multiplier, CoeffFile, ResidualSumfile, Failedfile, inputfilename):
+                          multiplier, CoeffFile_list, ResidualSumfile_list, Failedfile_list, inputfilename):
     t, ra, dec, dracoorddt, ddecdt, vmag, dist, se = getEphem(mymo, start_time, days, timestep)
     # now we have our arrays and fit exactly like before
+
     day0 = 0
     day1 = 64
     rows = 1
@@ -244,24 +245,25 @@ def doOneRecursiveSegment(ssmid, mymo, start_time, days, coeff, timestep, length
             if DEBUG:
                 print "oh no!:", p_resid
             breakItDown(ssmid, mymo, t[day0], timestep, length, ngran, coeff, multiplier,
-                        CoeffFile, ResidualSumfile, Failedfile,  inputfilename)
+                        CoeffFile_list, ResidualSumfile_list, Failedfile_list,  inputfilename)
         else:  # we're good. Print it out to file
             d, d_resid = get_coeffs_dist2(t[day0:day1+1], dist[day0:day1+1], ngran, npoint, 5, multiplier['DIST_X'])
             v, v_resid = get_coeffs_vmag(t[day0:day1+1], vmag[day0:day1+1], ngran, npoint, 9, multiplier['VMAG_X'])
             s, s_resid = get_coeffs_se(t[day0:day1+1], se[day0:day1+1], ngran, npoint, 6, multiplier['SE_X'])
             if np.isnan(v_resid) | np.isnan(d_resid) | np.isnan(s_resid):
                 print 'do not print!!'
-                print >>Failedfile, "%s %i %.14f %.14f %.14f %.14e %.14e %.14e %.14e %s" % (
+                Failedfile_list.append("%s %i %.14f %.14f %.14f %.14e %.14e %.14e %.14e %s\n" % (
                                     ssmid, rows, t[day0], t[day1], t[day1] - t[day0], p_resid, d_resid,
-                                    v_resid, s_resid, inputfilename)
+                                    v_resid, s_resid, inputfilename))
             else:
-                print >>ResidualSumfile, "%s %i %.14f %.14f %.14f %.14e %.14e %.14e %.14e %s" % (
+                ResidualSumfile_list.append("%s %i %.14f %.14f %.14f %.14e %.14e %.14e %.14e %s\n" % (
                     ssmid, rows, t[day0], t[day1], t[day1] - t[day0], p_resid, d_resid,
-                    v_resid, s_resid, inputfilename)
+                    v_resid, s_resid, inputfilename))
 
-                print >>CoeffFile, "%i %s %.10f %.10f %s %s %s %s %s"%(0,
-                                    ssmid, t[day0], t[day1],  " ".join('%.14e'%j for j in pra), " ".join('%.14e'%j for j in pdec), 
-                                    " ".join('%.7e'%j for j in d), " ".join('%.7e'%j for j in v),   " ".join('%.7e'%j for j in s))
+                CoeffFile_list.append("%i %s %.10f %.10f %s %s %s %s %s\n"%(0,
+                                    ssmid, t[day0], t[day1],  " ".join('%.14e'%j for j in pra), " ".join('%.14e'%j for j in pdec),
+                                    " ".join('%.7e'%j for j in d), " ".join('%.7e'%j for j in v),   " ".join('%.7e'%j for j in s)))
+
 
         # advance to the next day if less than 6 points left in month
         day0 = day1
@@ -269,8 +271,9 @@ def doOneRecursiveSegment(ssmid, mymo, start_time, days, coeff, timestep, length
         rows = rows + 1
 
 
-def doOneMonth(ssmid, mymo, start_time, days, coeff, multiplier, CoeffFile, ResidualSumfile,
-               Failedfile, inputfilename, knownGran=True):
+
+def doOneMonth(ssmid, mymo, start_time, days, coeff, multiplier, CoeffFile_list, ResidualSumfile_list,
+               Failedfile_list, inputfilename, knownGran=True):
     if not knownGran:
         timestep, length, ngran = getGran(ssmid, mymo, start_time, days, coeff)
         if DEBUG:
@@ -279,9 +282,10 @@ def doOneMonth(ssmid, mymo, start_time, days, coeff, multiplier, CoeffFile, Resi
         timestep = 0.03125
         length = 2.0
         ngran = 64
+
     doOneRecursiveSegment(ssmid, mymo, start_time, days, coeff, timestep,
-                          length, ngran,  multiplier, CoeffFile, ResidualSumfile,
-                          Failedfile,  inputfilename)
+                          length, ngran,  multiplier, CoeffFile_list, ResidualSumfile_list,
+                          Failedfile_list,  inputfilename)
 
 
 def main(argv):
@@ -358,8 +362,15 @@ def main(argv):
     if DEBUG:
         print 'datalen', datalen
 
+
+    line_step = 5000
+
     tmpStartTime = start_time
     while tmpStartTime < start_time + totaldays:
+
+        CoeffFile_list = []
+        ResidualSumfile_list = []
+        Failedfile_list = []
 
         timing_tag = '_%s_%s' % (str(tmpStartTime), argv[2])
 
@@ -376,8 +387,44 @@ def main(argv):
                             mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
                                                    t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
 
-                        doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile,
-                                   ResidualSumfile, Failedfile, inputfilename[-1])
+                        doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile_list,
+                                   ResidualSumfile_list, Failedfile_list, inputfilename[-1])
+
+                        if len(CoeffFile_list)>line_step \
+                        or len(ResidualSumfile_list)>line_step \
+                        or len(Failedfile_list)>line_step:
+
+                            for line in CoeffFile_list:
+                                CoeffFile.write(line)
+                            del CoeffFile_list
+                            CoeffFile_list = []
+
+                            for line in ResidualSumfile_list:
+                                ResidualSumfile.write(line)
+                            del ResidualSumfile_list
+                            ResidualSumfile_list = []
+
+                            for line in Failedfile_list:
+                                Failedfile.write(line)
+                            del Failedfile_list
+                            Failedfile_list = []
+
+
+                    for line in CoeffFile_list:
+                        CoeffFile.write(line)
+                    del CoeffFile_list
+                    CoeffFile_list = []
+
+                    for line in ResidualSumfile_list:
+                        ResidualSumfile.write(line)
+                    del ResidualSumfile_list
+                    ResidualSumfile_list = []
+
+                    for line in Failedfile_list:
+                        Failedfile.write(line)
+                    del Failedfile_list
+                    Failedfile_list = []
+
 
             tmpStartTime += days
 
