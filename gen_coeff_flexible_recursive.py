@@ -432,7 +432,9 @@ def main(argv):
                 print >>CompletedNotice, "Success"
 
     if tmp_dir is not None and output_dir is not None:
-        os.renames(tmp_dir, output_dir)
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        os.system('mv %s/* %s/' % (tmp_dir, output_dir))
 
 
 if __name__ == "__main__":
