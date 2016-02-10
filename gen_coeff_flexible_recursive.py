@@ -365,7 +365,7 @@ def main(argv):
         print 'datalen', datalen
 
 
-    line_step = 5000
+    line_step = 10000
 
     print 'running ',inputfilepath,' ',time.clock()
 
