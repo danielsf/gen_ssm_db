@@ -297,14 +297,19 @@ def main(argv):
     totaldays = int(argv[4])
 
     if len(argv)>=6:
-        tmp_dir = argv[5]
+        out_dir = argv[5]
     else:
-        tmp_dir = None
+        out_dir = None
 
     if len(argv)>=7:
-        output_dir = argv[6]
+        start_dex = int(argv[6])
     else:
-        output_dir = None
+        start_dex = 0
+
+    if len(argv)>=8:
+        end_dex = int(argv[7])
+    else:
+        end_dex = -1
 
     print 'starting ',inputfilepath,' ',time.clock()
     print 'Generating and Fitting Ephems starting:', start_time
@@ -315,12 +320,12 @@ def main(argv):
     # open output files
     inputfilename = inputfilepath.split("/")
 
-    if tmp_dir is not None:
+    if out_dir is not None:
 
-        if not os.path.exists(tmp_dir):
-            os.mkdir(tmp_dir)
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
 
-        outputfile_root = os.path.join(tmp_dir, inputfilename[-1])
+        outputfile_root = os.path.join(out_dir, inputfilename[-1])
     else:
         outputfile_root = inputfilename[-1]
 
@@ -364,6 +369,9 @@ def main(argv):
     if DEBUG:
         print 'datalen', datalen
 
+    if end_dex<0:
+        end_dex = datalen-1
+
 
     line_step = 20000
 
@@ -386,7 +394,7 @@ def main(argv):
             with open(residual_file_name, 'w') as ResidualSumfile:
                 with open(failed_file_name, 'w') as Failedfile:
 
-                    for i in range(datalen):
+                    for i in range(start_dex, end_dex+1):
                         if datalen == 1:
                             id = ssmid
                             mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
@@ -445,11 +453,6 @@ def main(argv):
 
             with open(outputfile_root + timing_tag + '.done.txt', 'w') as CompletedNotice:
                 print >>CompletedNotice, "Success"
-
-    if tmp_dir is not None and output_dir is not None:
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
-        os.system('mv %s/* %s/' % (tmp_dir, output_dir))
 
 
 if __name__ == "__main__":
