@@ -453,4 +453,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    t_start = time.clock()
+    print 'starting ',t_start
     main(sys.argv[1:])
+    print 'that took ',time.clock()-t_start
