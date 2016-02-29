@@ -318,6 +318,9 @@ def main(argv):
     print 'timespan in days ', days
     print 'number of coefficients ', coeff
 
+    print 'start_dex ',start_dex,' end_dex ',end_dex
+    return
+
     # open output files
     inputfilename = inputfilepath.split("/")
 
