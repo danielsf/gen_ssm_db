@@ -462,4 +462,10 @@ if __name__ == "__main__":
     t_start = time.clock()
     print 'starting ',t_start
     main(sys.argv[1:])
-    print 'that took ',time.clock()-t_start
+    if len(sys.argv)>=9:
+        start_dex = sys.argv[7]
+        end_dex = sys.argv[8]
+    else:
+        start_dex = -1
+        end_dex = -1
+    print 'that took ',time.clock()-t_start,start_dex,end_dex
