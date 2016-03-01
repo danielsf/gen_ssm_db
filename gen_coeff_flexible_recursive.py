@@ -311,7 +311,6 @@ def main(argv):
     else:
         end_dex = -1
 
-    t_start = time.clock()
     print 'starting ',inputfilepath
     print 'Generating and Fitting Ephems starting:', start_time
     print 'working on file ', inputfilepath
@@ -391,6 +390,8 @@ def main(argv):
     residual_file_name = outputfile_root + name_tag +'.resid_sum_vartime_' + str(coeff) + '.dat'
     failed_file_name = outputfile_root + name_tag + '.failed_' + str(coeff) + '.dat'
 
+    time_writing = 0.0
+
     with open(coeff_file_name, 'w') as CoeffFile:
         with open(residual_file_name, 'w') as ResidualSumfile:
             with open(failed_file_name, 'w') as Failedfile:
@@ -416,6 +417,8 @@ def main(argv):
                         or len(ResidualSumfile_list)>line_step \
                         or len(Failedfile_list)>line_step:
 
+                            t_start = time.clock()
+
                             for line in CoeffFile_list:
                                 CoeffFile.write(line)
                             del CoeffFile_list
@@ -431,6 +434,9 @@ def main(argv):
                             del Failedfile_list
                             Failedfile_list = []
 
+                            time_writing += time.clock()-t_start
+
+                t_start=time.clock()
                 for line in CoeffFile_list:
                     CoeffFile.write(line)
                 del CoeffFile_list
@@ -445,7 +451,8 @@ def main(argv):
                     Failedfile.write(line)
                 del Failedfile_list
                 Failedfile_list = []
-                print '    writing finally ',coeff_file_name,' took ',time.clock()-t_start
+                time_writing += time.clock()-t_start
+                print '    writing finally ',coeff_file_name,' took ',time_writing
 
         with open(outputfile_root + name_tag + '.done.txt', 'w') as CompletedNotice:
             print >>CompletedNotice, "Success"
