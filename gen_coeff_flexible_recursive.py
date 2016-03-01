@@ -372,7 +372,9 @@ def main(argv):
         print 'datalen', datalen
 
     if end_dex<0 or end_dex>datalen-1:
+        end_dex_0=end_dex
         end_dex = datalen-1
+        print 'run ',start_dex,end_dex_0,'set end_dex ',end_dex,' datalen ',datalen
 
 
     line_step = 20000
