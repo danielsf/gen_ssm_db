@@ -384,34 +384,33 @@ def main(argv):
     ResidualSumfile_list = []
     Failedfile_list = []
 
-    name_tag = '_%d_%d' % (start_dex, end_dex)
-
-    coeff_file_name = outputfile_root + name_tag + '.coeff_vartime_' + str(coeff) + '.dat'
-    residual_file_name = outputfile_root + name_tag +'.resid_sum_vartime_' + str(coeff) + '.dat'
-    failed_file_name = outputfile_root + name_tag + '.failed_' + str(coeff) + '.dat'
-
     time_writing = 0.0
 
-    with open(coeff_file_name, 'w') as CoeffFile:
-        with open(residual_file_name, 'w') as ResidualSumfile:
-            with open(failed_file_name, 'w') as Failedfile:
+    tmpStartTime=start_time
+    for tmpStartTime in np.arange(start_time, start_time+totaldays, days):
 
-                for i in range(start_dex, end_dex+1):
-                    if datalen == 1:
-                        id = ssmid
-                        mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
-                    else:
-                        id = ssmid[i]
-                        mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
-                                               t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
+        name_tag = '_%d_%d_%d' %(start_dex, end_dex, int(tmpStartTime))
 
-                    tmpStartTime = start_time
-                    while tmpStartTime < start_time + totaldays:
+        coeff_file_name = outputfile_root + name_tag + '.coeff_vartime_' + str(coeff) + '.dat'
+        residual_file_name = outputfile_root + name_tag +'.resid_sum_vartime_' + str(coeff) + '.dat'
+        failed_file_name = outputfile_root + name_tag + '.failed_' + str(coeff) + '.dat'
+
+        with open(coeff_file_name, 'w') as CoeffFile:
+            with open(residual_file_name, 'w') as ResidualSumfile:
+                with open(failed_file_name, 'w') as Failedfile:
+
+                    for i in range(start_dex, end_dex+1):
+                        if datalen == 1:
+                            id = ssmid
+                            mymo = mo.MovingObject(q, e, inc, omega, argperi, t_p, t_0, objid=ssmid, magHv=H)
+                        else:
+                            id = ssmid[i]
+                            mymo = mo.MovingObject(q[i], e[i], inc[i], omega[i], argperi[i],
+                                                   t_p[i], t_0[i], objid=ssmid[i], magHv=H[i])
+
 
                         doOneMonth(id, mymo, tmpStartTime, days, coeff, multipliers, CoeffFile_list,
                                    ResidualSumfile_list, Failedfile_list, inputfilename[-1])
-
-                        tmpStartTime += days
 
                         if len(CoeffFile_list)>line_step \
                         or len(ResidualSumfile_list)>line_step \
@@ -452,11 +451,11 @@ def main(argv):
                 del Failedfile_list
                 Failedfile_list = []
                 time_writing += time.clock()-t_start
-                print '    writing finally ',coeff_file_name,' took ',time_writing
 
         with open(outputfile_root + name_tag + '.done.txt', 'w') as CompletedNotice:
             print >>CompletedNotice, "Success"
 
+    print 'time spent writing output for ',inputfilepath,start_dex,end_dex,': ',time_writing
 
 if __name__ == "__main__":
     t_start = time.clock()
