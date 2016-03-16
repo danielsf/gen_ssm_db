@@ -386,6 +386,8 @@ def main(argv):
 
     time_writing = 0.0
 
+    file_name_list = []
+
     tmpStartTime=start_time
     for tmpStartTime in np.arange(start_time, start_time+totaldays, days):
 
@@ -394,6 +396,10 @@ def main(argv):
         coeff_file_name = outputfile_root + name_tag + '.coeff_vartime_' + str(coeff) + '.dat'
         residual_file_name = outputfile_root + name_tag +'.resid_sum_vartime_' + str(coeff) + '.dat'
         failed_file_name = outputfile_root + name_tag + '.failed_' + str(coeff) + '.dat'
+
+        file_name_list.append(coeff_file_name)
+        file_name_list.append(residual_file_name)
+        file_name_list.append(failed_file_name)
 
         with open(coeff_file_name, 'w') as CoeffFile:
             with open(residual_file_name, 'w') as ResidualSumfile:
@@ -452,8 +458,27 @@ def main(argv):
                 Failedfile_list = []
                 time_writing += time.clock()-t_start
 
-        with open(outputfile_root + name_tag + '.done.txt', 'w') as CompletedNotice:
+        done_file_name = outputfile_root + name_tag + 'done.txt'
+        file_name_list.append(done_file_name)
+        with open(done_file_name, 'w') as CompletedNotice:
             print >>CompletedNotice, "Success"
+
+
+    tar_file_name = '%s/%s_%d_%d.tar' % (out_dir, inputfilename, start_dex, end_dex)
+
+    rm_cmd = 'rm'
+    tar_cmd = 'tar -cvf %s' % tar_file_name
+    for name in file_name_list:
+        tar_cmd += ' %s' % name
+        rm_cmd += ' %s' % name
+
+    os.system(tar_cmd)
+
+    gzip_cmd = 'gzip %s' % tar_file_name 
+
+    os.system(gzip_cmd)
+
+    os.system(rm_cmd)
 
     print 'time spent writing output for ',inputfilepath,start_dex,end_dex,': ',time_writing
 
