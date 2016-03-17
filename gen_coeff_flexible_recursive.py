@@ -325,7 +325,7 @@ def main(argv):
     if out_dir is not None:
 
         if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
+            os.makedirs(out_dir)
 
         outputfile_root = os.path.join(out_dir, inputfilename[-1])
     else:
