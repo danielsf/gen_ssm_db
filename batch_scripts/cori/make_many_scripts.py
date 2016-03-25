@@ -10,7 +10,7 @@ def make_header(handle, total_tasks):
     handle.write("#SBATCH -p regular\n")
     handle.write("#SBATCH -n %d\n" % total_tasks)
     handle.write("#SBATCH --ntasks-per-node=32\n")
-    handle.write("#SBATCH -t 5:30:00\n\n")
+    handle.write("#SBATCH -t 10:00:00\n\n")
 
     handle.write("echo 'starting now'\n")
     handle.write("date\n\n")
