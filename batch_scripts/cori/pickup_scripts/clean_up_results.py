@@ -107,7 +107,7 @@ if __name__ == "__main__":
     total_asteroids = 1000000
 
     start_pts = range(0, total_asteroids, dn)
-    end_pts = [ii+dn-1 for ii in start_pts]
+    end_pts = [ii+dn-1 if ii<total_asteroids else total_asteroids-1 for ii in start_pts]
 
     target_dir = os.path.join(os.getenv('SCRATCH'),local_dir)
     raw_list_of_files = os.listdir(target_dir)
@@ -118,13 +118,10 @@ if __name__ == "__main__":
         full_name = os.path.join(target_dir, ff)
         os.unlink(full_name)
 
-    list_of_zipped_files = [ff for ff in os.listdir(target_dir) if ".tar.gz" in ff]
-
-
     with open(root+"_needs.txt", "w") as needs_file:
         for ss, ee in zip(start_pts, end_pts):
             final_file = "objects_%d_%d.tar.gz" % (ss, ee)
-            if final_file in list_of_zipped_files:
+            if os.path.exists(os.path.join(target_dir, final_file)): 
                 for date in list_of_dates:
                     if does_coeff_exist(target_dir, root, ss, ee, date):
                         needs_file.write('WARNING %s exists but %d has coeffs\n'
@@ -136,5 +133,6 @@ if __name__ == "__main__":
                         needs_file.write("ss %d ee %d date %d'n"
                                          % (ss, ee, date))
                         if does_coeff_exist(target_dir, root, ss, ee, date):
-                            os.system("rm %s/*_%d_%d_%d*" % (target_dir, ss, ee, date))
+                            os.system("rm %s/%s_%d_%d_%d*" %
+                                      (target_dir, root, ss, ee, date))
 
