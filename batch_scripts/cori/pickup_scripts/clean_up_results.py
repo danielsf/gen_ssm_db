@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import sys
 import os
 import numpy as np
@@ -119,28 +120,21 @@ if __name__ == "__main__":
 
     list_of_zipped_files = [ff for ff in os.listdir(target_dir) if ".tar.gz" in ff]
 
-    need_to_write = {}    
 
-    for ss, ee in zip(start_pts, end_pts):
-        final_file = "objects_%d_%d.tar.gz" % (ss, ee)
-        if final_file in list_of_zipped_files:
-            for date in list_of_dates:
-                if does_coeff_exist(target_dir, root, ss, ee, date):
-                    print 'WARNING %s exists but %d has coeffs' % (final_file, ss)
-        else:
-            for date in list_of_dates:
-                local_need = validate_coeff_file(target_dir, root, ss, ee, date)
-                if local_need:
-                    print 'YAY ',ss,ee,date,' was valid'
-                if not local_need:
-                    if ss not in need_to_write:
-                        need_to_write[ss] = [date]
-                    else:
-                        need_to_write[ss].append(date)
-
-
-    sorted_keys = need_to_write.keys()
-    sorted_keys.sort()
-    for ss in sorted_keys:
-        print 'need to write ',ss,need_to_write[ss]
+    with open(root+"_needs.txt", "w") as needs_file:
+        for ss, ee in zip(start_pts, end_pts):
+            final_file = "objects_%d_%d.tar.gz" % (ss, ee)
+            if final_file in list_of_zipped_files:
+                for date in list_of_dates:
+                    if does_coeff_exist(target_dir, root, ss, ee, date):
+                        needs_file.write('WARNING %s exists but %d has coeffs\n'
+                                         % (final_file, ss))
+            else:
+                for date in list_of_dates:
+                    local_need = validate_coeff_file(target_dir, root, ss, ee, date)
+                    if not local_need:
+                        needs_file.write("ss %d ee %d date %d'n"
+                                         % (ss, ee, date))
+                        if does_coeff_exist(target_dir, root, ss, ee, date):
+                            os.system("rm %s/*_%d_%d_%d*" % (target_dir, ss, ee, date))
 
