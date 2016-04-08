@@ -130,7 +130,7 @@ if __name__ == "__main__":
                 for date in list_of_dates:
                     local_need = validate_coeff_file(target_dir, root, ss, ee, date)
                     if not local_need:
-                        needs_file.write("ss %d ee %d date %d'n"
+                        needs_file.write("ss %d ee %d date %d\n"
                                          % (ss, ee, date))
                         if does_coeff_exist(target_dir, root, ss, ee, date):
                             os.system("rm %s/%s_%d_%d_%d*" %
