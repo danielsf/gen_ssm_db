@@ -3,47 +3,6 @@ import sys
 import os
 import numpy as np
 
-def make_header(handle):
-
-    handle.write("#!/bin/bash -l\n\n")
-
-    handle.write("#SBATCH -p shared\n")
-    handle.write("#SBATCH -n 1\n")
-    handle.write("#SBATCH -t 6:00:00\n\n")
-
-    handle.write("echo 'starting now'\n")
-    handle.write("date\n\n")
-
-    handle.write("module load python/2.7-anaconda\n\n")
-
-    handle.write("export NEODIR=$HOME/neo_generation\n")
-    handle.write("export PATH=$PATH:$NEODIR/oorb/main\n")
-    handle.write("export LD_LIBRARY_PATH=$NEODIR/oorb/lib:$LD_LIBRARY_PATH\n")
-    handle.write("export DYLD_LIBRARY_PATH=$NEODIR/oorb/lib:$DYLD_LIBRARY_PATH\n")
-    handle.write("export PYTHONPATH=$NEODIR/oorb/python:$PYTHONPATH\n")
-    handle.write("export OORB_DATA=$NEODIR/oorb/data\n")
-    handle.write("export OORB_CONF=$NEODIR/gen_ssm_db/config/oorb.conf\n")
-    handle.write("export PYTHONPATH=$NEODIR/gen_ssm_db:$PYTHONPATH\n\n")
-
-
-def write_conclusion(handle, dir, data_root, start_dex, end_dex):
-    handle.write("\ndeclare -i goahead\n")
-    handle.write("goahead=1\n")
-    handle.write("for (( ii=59580; ii<63233; ii+=30 ));\n")
-    handle.write("do\n")
-    handle.write("    if [ ! -e $SCRATCH/%s/%s_$ii\.done\.txt ]; then\n"
-                 % (dir, data_root))
-    handle.write("        goahead=0\n")
-    handle.write("    fi\n")
-    handle.write("done\n")
-    handle.write("\n")
-    handle.write("if [ $goahead == 1 ]; then\n")
-
-    handle.write("    tar -cf objects_%d_%d.tar *%d_%d* --remove-files\n"
-                 % (start_dex, end_dex, start_dex, end_dex))
-    handle.write("    gzip objects_%d_%d.tar\n" % (start_dex, end_dex))
-    handle.write("\n")
-
 
 def generate_coeff_name(root_name, start_dex, end_dex, month):
    return "%s_%d_%d_%d.coeff_vartime_14.dat" % (root_name, start_dex, end_dex, month) 
@@ -107,7 +66,7 @@ if __name__ == "__main__":
     total_asteroids = 1000000
 
     start_pts = range(0, total_asteroids, dn)
-    end_pts = [ii+dn-1 if ii<total_asteroids else total_asteroids-1 for ii in start_pts]
+    end_pts = [ii+dn-1 if ii+dn-1<total_asteroids else total_asteroids-1 for ii in start_pts]
 
     target_dir = os.path.join(os.getenv('SCRATCH'),local_dir)
     raw_list_of_files = os.listdir(target_dir)
@@ -133,7 +92,7 @@ if __name__ == "__main__":
                         local_need = validate_coeff_file(target_dir, root, ss, ee, date)
                         if not local_need:
                             n_invalid += 1
-                            needs_file.write("ss %d ee %d date %d\n"
+                            needs_file.write("%d %d %d\n"
                                              % (ss, ee, date))
                             if does_coeff_exist(target_dir, root, ss, ee, date):
                                 os.system("rm %s/%s_%d_%d_%d*" %
