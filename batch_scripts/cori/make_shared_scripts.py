@@ -1,5 +1,6 @@
 from __future__ import with_statement
 import os
+import sys
 
 n_nodes = 1
 
@@ -30,6 +31,11 @@ def make_header(handle):
 
 if __name__ == "__main__":
 
+    input_orbit = sys.argv[1]
+    script_dir = input_orbit.replace('.','_')+'_scripts'
+    if not os.path.exists(script_dir):
+        os.makedirs(script_dir)
+
     total_jobs = 1000000
     dn = 300
     cmd_ct = 0
@@ -41,14 +47,17 @@ if __name__ == "__main__":
     i_master = -1
     master_script = None 
 
-    input_orbit = 'S1_00.s3m.0.des'
-
     output_dir = os.path.join('$SCRATCH', input_orbit.replace('.','_')+'_shared')
 
     for i_start in range(0, total_jobs, dn):
         i_end=i_start+dn-1
+
+        if i_end>total_jobs:
+            i_end=total_jobs-1
+
         i_master += 1
         master_script_name = '%s.shared_script_%d.sl' % (input_orbit, i_master)
+        master_script_name = os.path.join(script_dir, master_script_name)
         with open(master_script_name, 'w') as master_script:
 
             make_header(master_script)
