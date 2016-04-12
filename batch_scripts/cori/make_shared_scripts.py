@@ -4,6 +4,9 @@ import sys
 
 n_nodes = 1
 
+def make_dir_name(root):
+    return root.replace('.','_')+'_shared'
+
 def make_header(handle):
 
     handle.write("#!/bin/bash -l\n\n")
@@ -26,6 +29,29 @@ def make_header(handle):
     handle.write("export OORB_CONF=$NEODIR/gen_ssm_db/config/oorb.conf\n")
     handle.write("export PYTHONPATH=$NEODIR/gen_ssm_db:$PYTHONPATH\n\n")
 
+
+def write_conclusion(handle, data_root, start_dex, end_dex):
+    dir = make_dir_name(data_root)
+    handle.write("\ncd $SCRATCH/%s\n" % dir)
+    handle.write("\ndeclare -i goahead\n")
+    handle.write("goahead=1\n")
+    handle.write("for (( ii=59580; ii<63233; ii+=30 ));\n")
+    handle.write("do\n")
+    handle.write("    if [ ! -e %s_%d_%d_$ii\.done\.txt ]; then\n"
+                 % (data_root, start_dex, end_dex))
+    handle.write("        goahead=0\n")
+    handle.write("        echo $ii' does not exist'\n")
+    handle.write("    fi\n")
+    handle.write("done\n")
+    handle.write("\n")
+    handle.write("if [ $goahead == 1 ]; then\n")
+
+    handle.write("    tar -cf objects_%d_%d.tar *%d_%d* --remove-files\n"
+                 % (start_dex, end_dex, start_dex, end_dex))
+    handle.write("    gzip objects_%d_%d.tar\n" % (start_dex, end_dex))
+    handle.write("else\n")
+    handle.write("    echo 'did not gzip'\n")
+    handle.write("fi\n")
 
 
 
@@ -56,7 +82,7 @@ if __name__ == "__main__":
             i_end=total_jobs-1
 
         i_master += 1
-        master_script_name = '%s.shared_script_%d.sl' % (input_orbit, i_master)
+        master_script_name = '%s.shared_script_%d.sl' % (input_orbit, i_start)
         master_script_name = os.path.join(script_dir, master_script_name)
         with open(master_script_name, 'w') as master_script:
 
@@ -66,10 +92,8 @@ if __name__ == "__main__":
 
             master_script.write(cmd)
 
-            tar_name = 'objects_%d_%d.tar' % (i_start, i_end)
-            master_script.write('\ncd %s\n' % output_dir)
-            master_script.write('tar -cf %s *%d_%d* --remove-files\n' % (tar_name,i_start,i_end))
-            master_script.write('gzip %s\n' % tar_name)
+
+            write_conclusion(master_script, input_orbit, i_start, i_end)
 
             master_script.write("echo 'done with %s'\n" % master_script_name)
             master_script.write("date")
