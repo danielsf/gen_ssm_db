@@ -55,7 +55,7 @@ def write_conclusion(handle, data_root, start_dex, end_dex):
     handle.write("    tar -cf objects_%d_%d.tar *%d_%d* --remove-files\n"
                  % (start_dex, end_dex, start_dex, end_dex))
     handle.write("    gzip objects_%d_%d.tar\n" % (start_dex, end_dex))
-    handle.write("\n")
+    handle.write("fi\n")
 
 
 if __name__ == "__main__":
