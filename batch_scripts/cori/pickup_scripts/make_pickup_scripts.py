@@ -21,6 +21,7 @@ def make_header(handle):
     handle.write("#SBATCH -p shared\n")
     handle.write("#SBATCH -n 1\n")
     handle.write("#SBATCH -t 6:00:00\n\n")
+    handle.write("#SBATCH -A m1727\n\n")
 
     handle.write("echo 'starting now'\n")
     handle.write("date\n\n")
